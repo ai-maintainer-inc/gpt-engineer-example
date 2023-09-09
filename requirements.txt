@@ -1,0 +1,3 @@
+gpt-engineer
+agent_harness
+python-dotenv

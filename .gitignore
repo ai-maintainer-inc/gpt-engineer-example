@@ -1,0 +1,5 @@
+venv
+deleteme
+.env
+.workspace
+.venv

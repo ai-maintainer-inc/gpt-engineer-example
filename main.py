@@ -10,10 +10,12 @@ import gpt_engineer.main as gpt_engineer_main
 from gpt_engineer.steps import Config as StepsConfig
 from dotenv import load_dotenv
 from typing import List
+from distutils import dir_util
 
 
 WORKSPACE_PATH = "./deleteme"
-CODE_PATH = "./deleteme/myproj"
+REPO = "myproj"
+CODE_PATH = os.path.join(WORKSPACE_PATH, REPO)
 
 
 def setup():
@@ -26,7 +28,7 @@ def setup():
     os.mkdir(WORKSPACE_PATH)
 
     # move project folder into workspace
-    shutil.copytree("myproj", CODE_PATH)
+    shutil.copytree(REPO, CODE_PATH)
 
     # move prompt file into workspace
     shutil.copy("prompt", os.path.join(WORKSPACE_PATH, "prompt"))
@@ -60,7 +62,7 @@ def make_file_list(code_path: str, ignore_dirs=[], ignore_files=[]) -> List[str]
 def run_agent():
     # run gpt-engineer
     gpt_engineer_main.main(
-        os.path.abspath("deleteme"),
+        os.path.abspath(WORKSPACE_PATH),
         "gpt-4",
         0.1,
         StepsConfig.EVAL_IMPROVE_CODE,
@@ -71,11 +73,11 @@ def run_agent():
 
 
 def apply_changes():
-    """
-    TODO:
-    - move files from {WORKSPACE_PATH}/workspace/myproj to {CODE_PATH}
-    """
-    pass
+    # move files from {WORKSPACE_PATH}/workspace/{REPO} to {CODE_PATH}
+    # {WORKSPACE_PATH}/workspace/{REPO} only contains changes
+    # some files in {CODE_PATH} aren't in {WORKSPACE_PATH}/workspace/{REPO}
+    source_dir = os.path.join(WORKSPACE_PATH, "workspace", REPO)
+    dir_util.copy_tree(source_dir, CODE_PATH)
 
 
 def main():

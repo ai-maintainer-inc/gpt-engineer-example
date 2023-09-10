@@ -8,9 +8,9 @@ Running `main.py` will do the following:
 - move `prompt` into the workspace (gpt-engineer looks for this)
 - generate list of project files into `file_list.txt` in workspace (gpt-engineer looks for this)
 - run gpt-engineer on the workspace in "auto-mode"
+- copy the changes back into `./deleteme/myproj`
 
 TODO:
-- gpt-engineer writes changes into a copy of the project. We need to copy the changes back into `./deleteme/myproj`
 - use the agent-harness to get real repos instead of the toy repo `./myproj`
 - use the agent-harness to get real prompts instead of the toy prompt `./prompt`
 - use the agent-harness to submit changes

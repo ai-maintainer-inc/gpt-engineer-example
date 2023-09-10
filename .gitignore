@@ -3,3 +3,4 @@ deleteme
 .env
 .workspace
 .venv
+.vscode

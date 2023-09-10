@@ -27,65 +27,79 @@ def setup():
         shutil.rmtree(WORKSPACE_PATH)
     os.mkdir(WORKSPACE_PATH)
 
-    # move project folder into workspace
-    shutil.copytree(REPO, CODE_PATH)
-
-    # move prompt file into workspace
-    shutil.copy("prompt", os.path.join(WORKSPACE_PATH, "prompt"))
-
-    # create file_list.txt in workspace
-    file_list = make_file_list(
-        CODE_PATH,
-        ignore_dirs=[".git, .benchmark"],
-        ignore_files=[".DS_Store"],
-    )
-    with open(os.path.join(WORKSPACE_PATH, "file_list.txt"), "w") as f:
-        for file in file_list:
-            f.write(file + "\n")
-
 
 def make_file_list(code_path: str, ignore_dirs=[], ignore_files=[]) -> List[str]:
     # generates a list of absolute paths to all files in code_path
     # skips files in ignore_files and directories in ignore_dirs
     file_list = []
     for root, dirs, files in os.walk(code_path):
+        if any([dir in root for dir in ignore_dirs]):
+            continue
         for file in files:
-            if file not in ignore_files:
-                file_list.append(os.path.join(root, file))
-        for dir in dirs:
-            if dir in ignore_dirs:
-                dirs.remove(dir)
+            if file in ignore_files:
+                continue
+            abs_path = os.path.join(root, file)
+            file_list.append(abs_path)
 
     return file_list
 
 
+def apply_changes(workspace_path, repo_name, code_path):
+    # move files from {workspace_path}/workspace/{repo_name} to {code_path}
+    # {workspace_path}/workspace/{repo_name} only contains changes
+    # some files in {code_path} aren't in {workspace_path}/workspace/{repo_name}
+    source_dir = os.path.join(workspace_path, "workspace", repo_name)
+    dir_util.copy_tree(source_dir, code_path)
+
+
 def run_agent():
-    # run gpt-engineer
-    gpt_engineer_main.main(
-        os.path.abspath(WORKSPACE_PATH),
-        "gpt-4",
-        0.1,
-        StepsConfig.EVAL_IMPROVE_CODE,
-        True,
-        None,
-        False,
+    benchmark_ids = get_benchmark_ids(
+        after="2023-09-04T17:21:19.73387Z", title_search="endpoint"
     )
 
+    for benchmark_id in benchmark_ids:
+        # init benchmark
+        info = start_benchmark(benchmark_id, WORKSPACE_PATH)
 
-def apply_changes():
-    # move files from {WORKSPACE_PATH}/workspace/{REPO} to {CODE_PATH}
-    # {WORKSPACE_PATH}/workspace/{REPO} only contains changes
-    # some files in {CODE_PATH} aren't in {WORKSPACE_PATH}/workspace/{REPO}
-    source_dir = os.path.join(WORKSPACE_PATH, "workspace", REPO)
-    dir_util.copy_tree(source_dir, CODE_PATH)
+        # write prompt
+        with open(os.path.join(WORKSPACE_PATH, "prompt"), "w") as f:
+            f.write(info.ticket["description"])
+
+        # create file_list.txt in workspace
+        file_list = make_file_list(
+            info.cloned_path,
+            ignore_dirs=[".git", ".benchmark"],
+            ignore_files=[".DS_Store"],
+        )
+        with open(os.path.join(WORKSPACE_PATH, "file_list.txt"), "w") as f:
+            for file in file_list:
+                f.write(file + "\n")
+
+        # run gpt-engineer
+        gpt_engineer_main.main(
+            os.path.abspath(WORKSPACE_PATH),
+            "gpt-4",
+            0.1,
+            StepsConfig.EVAL_IMPROVE_CODE,
+            True,
+            None,
+            False,
+        )
+
+        # apply changes
+        apply_changes(WORKSPACE_PATH, info.ticket["code"]["repo"], info.cloned_path)
+
+        # submit artifact
+        status, logs = submit_artifact(info)
+        print(f"\n\nBenchmark with ID {benchmark_id} completed with status {status}")
+        print(f"Logs for benchmark {benchmark_id}:\n{logs}\n\n")
 
 
 def main():
     load_dotenv()
-    # maybe_register_user()
+    maybe_register_user()
     setup()
     run_agent()
-    apply_changes()
 
 
 if __name__ == "__main__":

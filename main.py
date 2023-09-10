@@ -14,9 +14,6 @@ from distutils import dir_util
 
 
 WORKSPACE_PATH = "./.workspace"
-REPO = "myproj"
-CODE_PATH = os.path.join(WORKSPACE_PATH, REPO)
-DUMMY_FILE = "deleteme-dummy"
 
 
 def setup():

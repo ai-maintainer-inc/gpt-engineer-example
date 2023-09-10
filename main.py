@@ -16,6 +16,7 @@ from distutils import dir_util
 WORKSPACE_PATH = "./.workspace"
 REPO = "myproj"
 CODE_PATH = os.path.join(WORKSPACE_PATH, REPO)
+DUMMY_FILE = "deleteme-dummy"
 
 
 def setup():
@@ -38,7 +39,7 @@ def make_file_list(code_path: str, ignore_dirs=[], ignore_files=[]) -> List[str]
         for file in files:
             if file in ignore_files:
                 continue
-            abs_path = os.path.join(root, file)
+            abs_path = os.path.abspath(os.path.join(root, file))
             file_list.append(abs_path)
 
     return file_list
@@ -54,7 +55,8 @@ def apply_changes(workspace_path, repo_name, code_path):
 
 def run_agent():
     benchmark_ids = get_benchmark_ids(
-        after="2023-09-04T17:21:19.73387Z", title_search="endpoint"
+        after="2023-09-04T17:21:19.73387Z",
+        # title_search="test & hello",
     )
 
     for benchmark_id in benchmark_ids:
@@ -76,18 +78,24 @@ def run_agent():
                 f.write(file + "\n")
 
         # run gpt-engineer
-        gpt_engineer_main.main(
-            os.path.abspath(WORKSPACE_PATH),
-            "gpt-4",
-            0.1,
-            StepsConfig.EVAL_IMPROVE_CODE,
-            True,
-            None,
-            False,
-        )
+        try:
+            gpt_engineer_main.main(
+                os.path.abspath(WORKSPACE_PATH),
+                "gpt-4",
+                0.1,
+                StepsConfig.EVAL_IMPROVE_CODE,
+                True,
+                None,
+                False,
+            )
+        except Exception as e:
+            print(f"Error running gpt-engineer: {e}")
 
         # apply changes
-        apply_changes(WORKSPACE_PATH, info.ticket["code"]["repo"], info.cloned_path)
+        try:
+            apply_changes(WORKSPACE_PATH, info.ticket["code"]["repo"], info.cloned_path)
+        except Exception as e:
+            print(f"Error applying changes: {e}")
 
         # submit artifact
         status, logs = submit_artifact(info)

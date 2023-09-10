@@ -13,7 +13,7 @@ from typing import List
 from distutils import dir_util
 
 
-WORKSPACE_PATH = "./deleteme"
+WORKSPACE_PATH = "./.workspace"
 REPO = "myproj"
 CODE_PATH = os.path.join(WORKSPACE_PATH, REPO)
 

@@ -3,12 +3,12 @@
 Does not use the agent-harness yet. Uses a toy repo `./myproj` while we try to get gpt-engineer working.
 
 Running `main.py` will do the following:
-- create a temporary workspace folder `./deleteme`
-- copy the toy repo `./myproj` into `./deleteme` (emulates cloning the repo)
+- create a temporary workspace folder `./.workspace`
+- copy the toy repo `./myproj` into `./.workspace` (emulates cloning the repo)
 - move `prompt` into the workspace (gpt-engineer looks for this)
 - generate list of project files into `file_list.txt` in workspace (gpt-engineer looks for this)
 - run gpt-engineer on the workspace in "auto-mode"
-- copy the changes back into `./deleteme/myproj`
+- copy the changes back into `./.workspace/myproj`
 
 TODO:
 - use the agent-harness to get real repos instead of the toy repo `./myproj`

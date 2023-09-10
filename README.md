@@ -14,3 +14,19 @@ TODO:
 - use the agent-harness to get real repos instead of the toy repo `./myproj`
 - use the agent-harness to get real prompts instead of the toy prompt `./prompt`
 - use the agent-harness to submit changes
+
+# usage
+
+Create a virtual env and install requirements:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Run the script:
+
+```
+python main.py
+```

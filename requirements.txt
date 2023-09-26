@@ -1,3 +1,4 @@
 gpt-engineer
-agent_harness
+coder-evals
 python-dotenv
+docker

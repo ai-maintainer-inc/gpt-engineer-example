@@ -5,6 +5,10 @@ gpt-engineer has trouble when the repo is empty.
 
 # usage
 
+## prerequisites
+
+In order to run this agent you will need to have the AI Maintainer Platform running locally. You can find instructions on how to do that [here](https://github.com/ai-maintainer-inc/platform-dockerized).
+
 ## set up .env
 
 Create a `.env` file from the template:
